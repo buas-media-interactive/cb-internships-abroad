@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Internship Destination Guide – BUas Creative Business</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5fb; color: #1a1a2e; }
+  #root { max-width: 740px; margin: 0 auto; padding: 28px 20px 48px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const { useState } = React;
+
+const LAW = {
+  "🇬🇧 United Kingdom": { pay: "Mandatory internships (part of a degree, under 1 year) are exempt from National Minimum Wage. If you perform real work outside this exemption: £12.21/hr (21+), £10.00/hr (18–20).", contract: "No mandatory written contract, but clear written terms are strongly advised. The term 'intern' has no legal status — your rights depend on your actual duties.", social: "No social security contributions for exempt student placements.", link: "gov.uk/employment-rights-for-interns" },
+  "🇩🇪 Germany": { pay: "Mandatory internships (part of your study programme) can legally be unpaid, though ~€500/month is common. Voluntary internships must meet minimum wage: €12.41/hr.", contract: "A written Praktikantenvertrag is standard and strongly recommended.", social: "Paid mandatory internships are exempt from social security. Check health insurance if compensation is high.", link: "make-it-in-germany.com" },
+  "🇳🇱 Netherlands": { pay: "No legal minimum for curriculum placements. A small allowance (€300–500/month) is common but not mandatory.", contract: "A tripartite stageovereenkomst (student – company – university) is required.", social: "No social security contributions for standard curriculum placements.", link: "rijksoverheid.nl" },
+  "🇫🇷 France": { pay: "Mandatory pay for internships over 2 months: €4.50/hr from January 2026 (€4.35/hr in 2025). Shorter placements may be unpaid.", contract: "A tripartite convention de stage is legally required before the internship starts.", social: "No social security contributions up to the legal minimum. Above threshold, contributions apply.", link: "service-public.fr" },
+  "🇪🇸 Spain": { pay: "Curricular internships are generally unpaid. Since Oct 2023, all interns must be registered with Social Security regardless of pay.", contract: "A tripartite convenio de prácticas is required. New Internship Statute (draft 2025) aims to strengthen protections.", social: "Companies must register all interns with Social Security (~30% of minimum base contribution).", link: "mitramiss.gob.es" },
+  "🇩🇰 Denmark": { pay: "No statutory minimum for student placements, but strong cultural norm of fair pay (DKK 15,000–18,000/month common).", contract: "Written agreement expected. A clear uddannelsesplan (learning plan) is standard.", social: "Standard Danish social security rules apply if the intern is classed as a worker.", link: "workindenmark.dk" },
+  "🇸🇪 Sweden": { pay: "No statutory minimum for curriculum praktik. Paid placements common. Trainee roles follow collective agreements.", contract: "Internship agreement between student, employer and university is the norm.", social: "Employer pays social security contributions if the intern receives compensation.", link: "arbetsformedlingen.se" },
+  "🇵🇱 Poland": { pay: "Voluntary internships can be unpaid if under 3 months. Longer ones require at least minimum wage (~PLN 4,300/month gross in 2025).", contract: "Written internship agreement required, often organised via the university.", social: "Social security required if paid. Short unpaid curriculum placements generally exempt.", link: "gov.pl" },
+  "🇵🇹 Portugal": { pay: "Curricular internships generally unpaid. Professional internships outside education require ~€870/month (2025).", contract: "Tripartite protocol (student – company – university) required.", social: "Host company must register intern and make social security contributions for paid placements.", link: "iefp.pt" },
+  "🇨🇿 Czech Republic": { pay: "No statutory minimum for curricular internships. Standard minimum wage is CZK 18,900/month (2025) for regular workers.", contract: "Written agreement between student, company and university is standard.", social: "Social security applies if the intern is paid and classed as an employee.", link: "mpsv.cz" },
+  "🇺🇸 United States": { pay: "Unpaid internships only legal under strict DOL criteria. Most for-profit placements must pay at least federal minimum wage ($7.25/hr).", contract: "No mandatory contract, but a clear offer letter is strongly advised. Visa (J-1/CPT/OPT) must be arranged well in advance.", social: "J-1 visa holders may be exempt from FICA (Social Security/Medicare) taxes.", link: "dol.gov/agencies/whd/flsa/interns" },
+  "🇮🇹 Italy": { pay: "No national mandatory minimum for curricular internships. Regional rules vary — some regions require a minimum allowance (e.g. Lombardy: €600/month).", contract: "A tripartite convenzione di tirocinio is required. Rules vary by region.", social: "No mandatory contributions for unpaid curricular placements. Rules vary by region.", link: "cliclavoro.gov.it" },
+  "🇧🇬 Bulgaria": { pay: "If remunerated, minimum wage applies: BGN 1,077/month (≈€550, 2025). Non-mandatory internships >3 months: ~€300/month is a common benchmark. EU citizens need a TIN to receive payment.", contract: "Written agreement between student, company and university is standard. Public sector placements: 10–45 days, unpaid, with individual learning plan.", social: "EU citizens must have a valid EHIC card. Social security contributions apply if classed as an employee.", link: "eures.europa.eu" }
+};
+
+const countryProfiles = {
+  uk: { flag:"🇬🇧",name:"United Kingdom",lawKey:"🇬🇧 United Kingdom",risk:"medium",riskLabel:"Medium – network-driven",sectors:["Advertising & branding","Film & TV","Fashion","Digital media"],profile:"World-class creative industry but very network-driven. Most roles are filled informally. Best for confident, proactive students with a strong portfolio.",pay:{status:"⚠️ Often unpaid (curriculum placements exempt from NMW)",detail:"Mandatory internships under 1 year are exempt from NMW. Real work outside this exemption: £12.21/hr (21+), £10.00/hr (18–20)."},practical:["London: budget at least £1,200–1,800/month","No visa needed for stays under 6 months (post-Brexit)","Start LinkedIn outreach 3–4 months before start date","Most roles not publicly advertised – cold outreach essential"],source:"gov.uk/employment-rights-for-interns"},
+  de: { flag:"🇩🇪",name:"Germany",lawKey:"🇩🇪 Germany",risk:"low",riskLabel:"Low – structured, often paid",sectors:["Design & digital agencies","Tech-creative","Marketing & consultancy","Corporate traineeships"],profile:"Highly recommended for both creative and business profiles. Transparent recruitment, often paid, many English-speaking companies in Berlin, Hamburg and Munich.",pay:{status:"✅ Often paid (~€500/month typical)",detail:"Mandatory internships can legally be unpaid, but ~€500/month is common. Voluntary internships must meet minimum wage: €12.41/hr."},practical:["Apply 3–5 months in advance","LinkedIn and Xing both used","Berlin, Hamburg, Munich are main hubs","English widely spoken in international companies"],source:"make-it-in-germany.com"},
+  nl: { flag:"🇳🇱",name:"Netherlands",lawKey:"🇳🇱 Netherlands",risk:"low",riskLabel:"Low – accessible, familiar",sectors:["UX & digital product","Creative agencies","Startups","Marketing"],profile:"Accessible and familiar for BUas students. Strong startup and UX scene. Allowances are common but often low.",pay:{status:"⚠️ No legal minimum – allowance common (€300–500/month)",detail:"No legal minimum pay for curriculum placements. A small allowance is common but not required."},practical:["Amsterdam is expensive; other cities more affordable","Many companies work in English","Platforms: Stagemarkt.nl, LinkedIn"],source:"rijksoverheid.nl"},
+  fr: { flag:"🇫🇷",name:"France",lawKey:"🇫🇷 France",risk:"medium",riskLabel:"Medium – bureaucracy heavy",sectors:["Luxury & fashion","Marketing & events","Film & media","Hospitality"],profile:"Excellent for luxury, fashion and events. Pay legally required for longer placements. Significant paperwork — convention de stage must be in place before you start.",pay:{status:"✅ Legally required for stages over 2 months",detail:"€4.50/hr from January 2026 (€4.35/hr in 2025). Shorter placements may be unpaid."},practical:["Allow extra time for paperwork – weeks in advance","French language a strong advantage","Paris cost of living: €1,200–1,800/month","Luxury and fashion sectors highly competitive"],source:"service-public.fr"},
+  es: { flag:"🇪🇸",name:"Spain",lawKey:"🇪🇸 Spain",risk:"high",riskLabel:"High – often unpaid, extra admin",sectors:["Hospitality & events","International marketing","Tourism","Media"],profile:"Great for international experience. Many curricular placements are unpaid. Since Oct 2023 all interns must be registered with Social Security — verify your host company does this.",pay:{status:"🔴 Curricular internships often unpaid",detail:"Curricular placements generally unpaid. Since Oct 2023, companies must register all interns with Social Security regardless of pay."},practical:["Build a financial buffer – most placements are unpaid","Cost of living: €700–1,100/month","Barcelona, Madrid, Seville are main hubs","Confirm Social Security registration before starting"],source:"mitramiss.gob.es"},
+  dk: { flag:"🇩🇰",name:"Denmark",lawKey:"🇩🇰 Denmark",risk:"low",riskLabel:"Low – structured, often paid",sectors:["Design & architecture","Sustainability & tech","Marketing","Media"],profile:"Top choice for students who want structure, good supervision and a real learning environment. Often paid. Fewer spots than larger markets.",pay:{status:"✅ Often paid (DKK 15,000–18,000/month common)",detail:"No statutory minimum for student placements, but strong cultural norm of fair pay."},practical:["Fewer spots – apply 4–5 months in advance","English widely spoken","Copenhagen: €1,500–2,000/month","Strong work-life balance culture"],source:"workindenmark.dk"},
+  se: { flag:"🇸🇪",name:"Sweden",lawKey:"🇸🇪 Sweden",risk:"low",riskLabel:"Low – structured, often paid",sectors:["Tech & gaming","Design","Sustainability","Marketing & PR"],profile:"Similar to Denmark: structured, English-friendly, often paid. Stockholm has a strong tech and startup scene.",pay:{status:"✅ Often paid – collective agreements apply",detail:"No statutory minimum for curriculum praktik. Paid placements common. Trainee roles follow collective agreements."},practical:["Stockholm: €1,400–1,900/month","Strong startup ecosystem","Apply early – limited spots","English standard in professional environments"],source:"arbetsformedlingen.se"},
+  pl: { flag:"🇵🇱",name:"Poland",lawKey:"🇵🇱 Poland",risk:"low",riskLabel:"Low – emerging, affordable",sectors:["Film & post-production","Gaming & tech","Creative agencies","Marketing"],profile:"Underrated gem. Growing creative and tech scene, low cost of living, less competition. Warsaw and Kraków are the main hubs.",pay:{status:"⚠️ Short placements often unpaid; longer ones require minimum wage",detail:"Voluntary internships under 3 months can be unpaid. Longer ones require at least ~PLN 4,300/month gross (2025)."},practical:["Very affordable: €600–900/month","Warsaw and Kraków are main hubs","English widely used in international companies","Growing film and post-production industry"],source:"gov.pl"},
+  pt: { flag:"🇵🇹",name:"Portugal",lawKey:"🇵🇹 Portugal",risk:"low",riskLabel:"Low – accessible, international vibe",sectors:["Digital marketing","Tourism & hospitality","Startups & tech","Creative agencies"],profile:"Increasingly popular. Lisbon has a booming startup scene. Curricular placements often unpaid but cost of living is lower than Western Europe.",pay:{status:"⚠️ Curricular internships generally unpaid",detail:"Curricular placements generally unpaid. Professional internships outside education require ~€870/month (2025)."},practical:["Affordable: €800–1,100/month in Lisbon","English widely spoken in startups","Lisbon and Porto are main hubs","Strong digital nomad/startup culture"],source:"iefp.pt"},
+  cz: { flag:"🇨🇿",name:"Czech Republic",lawKey:"🇨🇿 Czech Republic",risk:"low",riskLabel:"Low – emerging, affordable",sectors:["Film & TV production","Animation & gaming","Creative agencies","IT & tech"],profile:"Prague is a growing hub for film, animation and creative tech. Less competition, more room for real responsibilities. Very affordable.",pay:{status:"⚠️ No statutory minimum for curricular placements",detail:"No statutory minimum for curricular internships. Standard minimum wage: CZK 18,900/month (2025) for regular workers."},practical:["Very affordable: €600–900/month in Prague","Strong film and animation industry","English spoken in international companies","Less competition for spots"],source:"mpsv.cz"},
+  us: { flag:"🇺🇸",name:"United States",lawKey:"🇺🇸 United States",risk:"high",riskLabel:"High – visa complexity, competitive",sectors:["Film & entertainment","Advertising","Fashion & media","Tech"],profile:"World-class industry exposure, especially in entertainment and tech. But visa requirements are complex and competition is fierce.",pay:{status:"⚠️ Must meet 'primary beneficiary' test to be unpaid",detail:"Unpaid internships only legal under strict DOL criteria. Most for-profit placements must pay at least federal minimum wage ($7.25/hr)."},practical:["J-1 visa required – arrange 3–4 months in advance","NYC/LA cost of living: €2,000–3,000/month","Extremely competitive – portfolio and network essential","Health insurance not automatic – arrange separately"],source:"dol.gov/agencies/whd/flsa/interns"},
+  it: { flag:"🇮🇹",name:"Italy",lawKey:"🇮🇹 Italy",risk:"high",riskLabel:"High – often unpaid, limited supervision",sectors:["Fashion & luxury","Film & media","Design","Hospitality"],profile:"Strong in fashion, design and luxury. But one of the least regulated internship markets in Europe — unpaid placements are common, supervision can be limited.",pay:{status:"🔴 Often unpaid – no national mandatory minimum",detail:"No national mandatory minimum for curricular internships. Regional rules vary — some regions require a minimum allowance (e.g. Lombardy: €600/month)."},practical:["Check regional pay rules – they differ significantly","Milan for fashion/design, Rome for film/media","Build a financial buffer","Italian language a strong advantage"],source:"cliclavoro.gov.it"},
+  bg: { flag:"🇧🇬",name:"Bulgaria",lawKey:"🇧🇬 Bulgaria",risk:"low",riskLabel:"Low – affordable, emerging creative scene",sectors:["IT & software","Creative agencies","Marketing & PR","Film & media"],profile:"Underrated destination with a rapidly growing IT and creative sector. Sofia is the main hub. Very affordable, less competition, good for students wanting hands-on experience.",pay:{status:"⚠️ Often unpaid – if paid, minimum wage applies",detail:"If remunerated, minimum wage applies: BGN 1,077/month (≈€550, 2025). Non-mandatory internships >3 months: ~€300/month benchmark. EU citizens need a TIN to receive payment."},practical:["Very affordable: €500–750/month in Sofia","Sofia is the hub for IT and creative companies","English widely used in international companies","EU citizens: no visa for stays under 90 days; obtain a TIN if paid"],source:"eures.europa.eu"}
+};
+
+const treeNodes = {
+  start: { question:"What matters most to you in your internship?", options:[{label:"🎨 Creative work (media, branding, content, design)",next:"creative"},{label:"📈 Business, marketing or consultancy",next:"business"},{label:"🎬 Film, TV or entertainment",next:"film"},{label:"🌱 Structure, guidance and security",next:"structure"}]},
+  creative: { question:"How important is getting paid?", options:[{label:"💰 Very important – I need a salary",next:"creative_paid"},{label:"🤷 Less important – experience comes first",next:"creative_unpaid"}]},
+  creative_paid: { question:"Are you comfortable building a network and doing proactive outreach?", options:[{label:"✅ Yes, I'm confident networking",next:"r_de_creative"},{label:"❌ Not really – I prefer a transparent job market",next:"r_nl_de"}]},
+  creative_unpaid: { question:"Are you comfortable in competitive, network-driven environments?", options:[{label:"✅ Yes, bring it on",next:"r_uk_creative"},{label:"❌ I'd rather have a structured process",next:"r_de_nl"}]},
+  business: { question:"What kind of business environment are you looking for?", options:[{label:"🏢 Corporate / large companies",next:"r_de_business"},{label:"💄 Luxury, fashion or events",next:"r_fr"},{label:"🌍 International experience, relaxed vibe",next:"r_es_risk"}]},
+  film: { question:"Do you have industry contacts or a strong portfolio?", options:[{label:"✅ Yes – I'm ready to compete",next:"r_uk_us_fr"},{label:"❌ Not yet – I want to build experience first",next:"r_emerging_film"}]},
+  structure: { question:"How do you feel about a smaller internship market?", options:[{label:"🙌 Fine – quality over quantity",next:"r_nordic"},{label:"😬 I want more options",next:"r_de_nl"}]},
+  r_de_creative: { result:true, keys:["de"], why:"Germany is strong in design, digital agencies and tech-creative roles. Often paid, many international companies, and a transparent recruitment process.", tips:["Target English-speaking agencies in Berlin, Hamburg or Munich","LinkedIn and Xing are both used","Apply 3–4 months in advance"]},
+  r_nl_de: { result:true, keys:["nl","de"], why:"Both countries have accessible creative sectors with transparent recruitment. The Netherlands is strong in UX, startups and creative agencies.", tips:["Dutch allowances are often low – check your costs","Germany tends to pay better","Both have active LinkedIn markets"]},
+  r_uk_creative: { result:true, keys:["uk"], why:"The UK has one of Europe's strongest creative industries — advertising, fashion, film and media. Very network-driven.", tips:["Start building your LinkedIn now","Reach out cold – most opportunities aren't advertised","Budget carefully: London is expensive"], warning:"⚠️ Without a network or proactive outreach, this market is hard to break into."},
+  r_de_nl: { result:true, keys:["de","nl"], why:"Both offer structured, transparent hiring processes — good for students who prefer clarity over competition.", tips:["Use job boards like Indeed, LinkedIn and company career pages","Apply early – structured programmes have fixed deadlines"]},
+  r_de_business: { result:true, keys:["de"], why:"Germany has the largest economy in Europe with many corporate traineeship programmes in marketing, management and consulting.", tips:["Look at DAX companies and Mittelstand firms","Many programmes run in English","Apply 4–6 months in advance"]},
+  r_fr: { result:true, keys:["fr"], why:"France is home to major luxury, fashion and events brands. Pay is legally required for placements over 2 months.", tips:["French language skills are a big advantage","Paris is the main hub – factor in high living costs","Arrange your convention de stage well in advance"], warning:"⚠️ Bureaucracy can be heavy. Make sure your convention de stage is signed before you start."},
+  r_es_risk: { result:true, keys:["es"], why:"Spain offers great international experience, especially in hospitality, events and marketing. Many curricular placements are unpaid.", tips:["Set clear learning goals before you go","Build a financial buffer","Barcelona, Madrid and Seville have active intern markets"], warning:"⚠️ Risk country: often unpaid. Since Oct 2023, host companies must register all interns with Social Security."},
+  r_uk_us_fr: { result:true, keys:["uk","us","fr"], why:"These countries have the world's biggest film, TV and entertainment industries. Unmatched if you have contacts and a strong portfolio.", tips:["Network actively – most roles are filled informally","Portfolio and showreel quality is everything","Check visa requirements carefully, especially for the US (J-1/OPT)"], warning:"⚠️ Extremely competitive. Entry is often via personal connections, not open applications."},
+  r_emerging_film: { result:true, keys:["pl","pt","cz","bg"], why:"These growing creative markets offer more space to contribute and learn, with less competition than Western hubs.", tips:["Warsaw, Lisbon, Prague and Sofia have growing film and media scenes","More likely to get real responsibility","Good stepping stone before aiming for bigger markets"]},
+  r_nordic: { result:true, keys:["dk","se"], why:"Nordic countries are known for excellent internship structures: clear learning goals, good supervision and often paid placements.", tips:["Fewer spots available – apply early","English widely spoken","Strong work-life balance means a real learning environment"]}
+};
+
+const allCountries = [
+  {key:"uk",flag:"🇬🇧",name:"United Kingdom"},{key:"de",flag:"🇩🇪",name:"Germany"},
+  {key:"nl",flag:"🇳🇱",name:"Netherlands"},{key:"fr",flag:"🇫🇷",name:"France"},
+  {key:"es",flag:"🇪🇸",name:"Spain"},{key:"dk",flag:"🇩🇰",name:"Denmark"},
+  {key:"se",flag:"🇸🇪",name:"Sweden"},{key:"pl",flag:"🇵🇱",name:"Poland"},
+  {key:"pt",flag:"🇵🇹",name:"Portugal"},{key:"cz",flag:"🇨🇿",name:"Czech Republic"},
+  {key:"us",flag:"🇺🇸",name:"United States"},{key:"it",flag:"🇮🇹",name:"Italy"},
+  {key:"bg",flag:"🇧🇬",name:"Bulgaria"}
+];
+
+const riskColor = {low:"#d1fae5",medium:"#fff3cd",high:"#fee2e2"};
+const riskBorder = {low:"#6ee7b7",medium:"#fcd34d",high:"#fca5a5"};
+const riskText = {low:"#065f46",medium:"#92400e",high:"#991b1b"};
+
+function Accordion({title,children}) {
+  const [open,setOpen]=useState(false);
+  return (
+    <div style={{border:"1px solid #e0e0f0",borderRadius:10,marginBottom:8,overflow:"hidden"}}>
+      <button onClick={()=>setOpen(!open)} style={{width:"100%",textAlign:"left",padding:"10px 14px",background:open?"#f0f0ff":"#fafafa",border:"none",cursor:"pointer",fontWeight:600,fontSize:13,display:"flex",justifyContent:"space-between",fontFamily:"inherit"}}>
+        <span>{title}</span><span style={{color:"#4f46e5"}}>{open?"▲":"▼"}</span>
+      </button>
+      {open&&<div style={{padding:"12px 14px",fontSize:13,lineHeight:1.6,background:"#fff"}}>{children}</div>}
+    </div>
+  );
+}
+
+function CountryCard({ckey}) {
+  const c=countryProfiles[ckey], law=LAW[c.lawKey];
+  return (
+    <div style={{border:"1px solid #e0e0f0",borderRadius:12,overflow:"hidden",marginBottom:12}}>
+      <div style={{padding:"14px 16px",background:"#f8f8ff"}}>
+        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
+          <span style={{fontSize:28}}>{c.flag}</span>
+          <div>
+            <div style={{fontWeight:700,fontSize:16}}>{c.name}</div>
+            <span style={{fontSize:11,padding:"2px 8px",borderRadius:20,background:riskColor[c.risk],color:riskText[c.risk],border:`1px solid ${riskBorder[c.risk]}`}}>{c.riskLabel}</span>
+          </div>
+        </div>
+        <p style={{margin:"0 0 10px",fontSize:13,lineHeight:1.6,color:"#333"}}>{c.profile}</p>
+        <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
+          {c.sectors.map(s=><span key={s} style={{fontSize:11,padding:"2px 8px",borderRadius:20,background:"#e0e7ff",color:"#3730a3",fontWeight:500}}>{s}</span>)}
+        </div>
+      </div>
+      <div style={{padding:"10px 16px 14px"}}>
+        <Accordion title="💶 Pay & remuneration">
+          <div style={{background:c.pay.status.startsWith("✅")?"#d1fae5":c.pay.status.startsWith("⚠️")?"#fff3cd":"#fee2e2",borderRadius:8,padding:"7px 12px",marginBottom:8,fontWeight:600,fontSize:13}}>{c.pay.status}</div>
+          <p style={{margin:0,color:"#333"}}>{c.pay.detail}</p>
+        </Accordion>
+        <Accordion title="📄 Contract & agreement"><p style={{margin:0,color:"#333"}}>{law.contract}</p></Accordion>
+        <Accordion title="🏥 Social security"><p style={{margin:0,color:"#333"}}>{law.social}</p></Accordion>
+        <Accordion title="🧳 Practical tips">
+          <ul style={{margin:0,paddingLeft:18}}>{c.practical.map((t,i)=><li key={i} style={{marginBottom:5,color:"#333"}}>{t}</li>)}</ul>
+        </Accordion>
+        <p style={{fontSize:11,color:"#aaa",margin:"8px 0 0"}}>Source: {c.source}</p>
+      </div>
+    </div>
+  );
+}
+
+function BUasNote() {
+  return (
+    <div style={{background:"#fff8e1",border:"1px solid #ffe082",borderRadius:10,padding:"11px 15px",margin:"14px 0",fontSize:13,color:"#5d4037"}}>
+      <strong>📌 BUas students:</strong> Your internship must always be arranged via a signed tripartite agreement between you, your host company, and BUas. Discuss all international placements with your Work Placement Coordinator before signing anything.
+    </div>
+  );
+}
+
+function DecisionTree() {
+  const [path,setPath]=useState(["start"]);
+  const cur=treeNodes[path[path.length-1]];
+  const choose=n=>setPath([...path,n]);
+  const back=()=>setPath(path.slice(0,-1));
+  const reset=()=>setPath(["start"]);
+  return (
+    <div>
+      <p style={{color:"#555",fontSize:14,margin:"0 0 16px"}}>Answer a few questions to find the best country for your profile and goals.</p>
+      <div style={{display:"flex",gap:5,marginBottom:20}}>
+        {path.map((_,i)=><div key={i} style={{width:8,height:8,borderRadius:"50%",background:i===path.length-1?"#4f46e5":"#c7c7e8"}}/>)}
+      </div>
+      {cur.result?(
+        <div>
+          <div style={{background:"#f0f0ff",border:"2px solid #4f46e5",borderRadius:14,padding:"18px 20px",marginBottom:14}}>
+            <p style={{fontSize:12,fontWeight:600,color:"#4f46e5",textTransform:"uppercase",letterSpacing:1,margin:"0 0 8px"}}>Your match</p>
+            <div style={{display:"flex",flexWrap:"wrap",gap:7,marginBottom:12}}>
+              {cur.keys.map(k=><span key={k} style={{background:"#4f46e5",color:"#fff",borderRadius:20,padding:"4px 14px",fontSize:14,fontWeight:600}}>{countryProfiles[k].flag} {countryProfiles[k].name}</span>)}
+            </div>
+            <p style={{margin:"0 0 12px",lineHeight:1.6,color:"#333",fontSize:14}}>{cur.why}</p>
+            {cur.warning&&<div style={{background:"#fff3cd",border:"1px solid #f0c040",borderRadius:8,padding:"9px 13px",marginBottom:10,fontSize:13,color:"#7a5900"}}>{cur.warning}</div>}
+            <p style={{fontWeight:600,margin:"0 0 6px",fontSize:13}}>Tips:</p>
+            <ul style={{margin:0,paddingLeft:18}}>{cur.tips.map((t,i)=><li key={i} style={{marginBottom:5,fontSize:13,color:"#333"}}>{t}</li>)}</ul>
+          </div>
+          <p style={{fontWeight:700,fontSize:14,margin:"0 0 10px"}}>Country details & legal info:</p>
+          {cur.keys.map(k=><CountryCard key={k} ckey={k}/>)}
+          <BUasNote/>
+          <div style={{display:"flex",gap:10,marginTop:4}}>
+            <button onClick={back} style={{padding:"9px 18px",borderRadius:8,border:"1px solid #ccc",background:"#fff",cursor:"pointer",fontSize:14,fontFamily:"inherit"}}>← Back</button>
+            <button onClick={reset} style={{padding:"9px 18px",borderRadius:8,border:"none",background:"#4f46e5",color:"#fff",cursor:"pointer",fontSize:14,fontWeight:600,fontFamily:"inherit"}}>Start over</button>
+          </div>
+        </div>
+      ):(
+        <div>
+          <div style={{background:"#fff",border:"1px solid #e0e0f0",borderRadius:14,padding:"18px 20px",marginBottom:14,boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}>
+            <p style={{fontSize:17,fontWeight:600,margin:0,lineHeight:1.5}}>{cur.question}</p>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:9,marginBottom:18}}>
+            {cur.options.map((opt,i)=>(
+              <button key={i} onClick={()=>choose(opt.next)}
+                style={{textAlign:"left",padding:"13px 17px",borderRadius:10,border:"1.5px solid #e0e0f0",background:"#fff",cursor:"pointer",fontSize:14,lineHeight:1.4,fontFamily:"inherit"}}
+                onMouseEnter={e=>e.currentTarget.style.borderColor="#4f46e5"}
+                onMouseLeave={e=>e.currentTarget.style.borderColor="#e0e0f0"}>
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          {path.length>1&&<button onClick={back} style={{padding:"9px 18px",borderRadius:8,border:"1px solid #ccc",background:"#fff",cursor:"pointer",fontSize:14,fontFamily:"inherit"}}>← Back</button>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CountryExplorer() {
+  const [sel,setSel]=useState(null);
+  return (
+    <div>
+      <p style={{color:"#555",fontSize:14,margin:"0 0 16px"}}>Already have a country in mind? Select it to see sectors, pay rules, legal framework and practical tips.</p>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill, minmax(110px, 1fr))",gap:8,marginBottom:20}}>
+        {allCountries.map(({key,flag,name})=>{
+          const d=countryProfiles[key], isSel=sel===key;
+          return (
+            <button key={key} onClick={()=>setSel(isSel?null:key)}
+              style={{padding:"9px 6px",borderRadius:10,border:isSel?"2px solid #4f46e5":"1.5px solid #e0e0f0",background:isSel?"#f0f0ff":"#fff",cursor:"pointer",fontFamily:"inherit",textAlign:"center"}}
+              onMouseEnter={e=>{if(!isSel)e.currentTarget.style.borderColor="#a5b4fc";}}
+              onMouseLeave={e=>{if(!isSel)e.currentTarget.style.borderColor="#e0e0f0";}}>
+              <div style={{fontSize:22}}>{flag}</div>
+              <div style={{fontSize:11,fontWeight:600,marginTop:3,color:isSel?"#4f46e5":"#333"}}>{name}</div>
+              <div style={{marginTop:4,fontSize:10,padding:"2px 5px",borderRadius:20,background:riskColor[d.risk],color:riskText[d.risk],border:`1px solid ${riskBorder[d.risk]}`,display:"inline-block"}}>
+                {d.risk==="low"?"✅ Low":d.risk==="medium"?"⚠️ Medium":"🔴 High"}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      {sel?<div><CountryCard ckey={sel}/><BUasNote/></div>:<p style={{fontSize:13,color:"#aaa",textAlign:"center"}}>Select a country above to see the full profile.</p>}
+    </div>
+  );
+}
+
+function App() {
+  const [tab,setTab]=useState(0);
+  return (
+    <div>
+      <div style={{marginBottom:20}}>
+        <h1 style={{fontSize:22,fontWeight:700,margin:0}}>Internship Destination Guide</h1>
+        <p style={{color:"#555",marginTop:5,fontSize:14}}>Creative Business – BUas · Legal info current as of early 2026</p>
+      </div>
+
+      <div style={{background:"#f0f4ff",border:"1px solid #c7d4f7",borderRadius:10,padding:"12px 16px",marginBottom:24,display:"flex",gap:12,alignItems:"flex-start"}}>
+        <span style={{fontSize:22,lineHeight:1}}>🤖</span>
+        <p style={{margin:0,fontSize:13,lineHeight:1.6,color:"#374151"}}>
+          <strong>This guide was created with the help of AI</strong> and is intended as a starting point for your orientation. Legal regulations and pay requirements change regularly — always verify current rules with your <strong>Work Placement Coordinator at BUas</strong> before making any decisions.
+        </p>
+      </div>
+      <div style={{display:"flex",gap:8,marginBottom:24,borderBottom:"2px solid #e0e0f0"}}>
+        {["🧭 Find my country","🌍 Country Explorer"].map((t,i)=>(
+          <button key={i} onClick={()=>setTab(i)}
+            style={{padding:"9px 18px",borderRadius:"8px 8px 0 0",border:"none",background:tab===i?"#4f46e5":"#f0f0ff",color:tab===i?"#fff":"#4f46e5",fontWeight:600,fontSize:14,cursor:"pointer",fontFamily:"inherit",marginBottom:"-2px",borderBottom:tab===i?"2px solid #4f46e5":"2px solid transparent"}}>
+            {t}
+          </button>
+        ))}
+      </div>
+      {tab===0?<DecisionTree/>:<CountryExplorer/>}
+      <p style={{marginTop:28,fontSize:11,color:"#bbb",borderTop:"1px solid #eee",paddingTop:12}}>
+        Always verify legal requirements with official government sources and discuss international placements with your BUas Work Placement Coordinator before signing any agreement.
+      </p>
+    </div>
+  );
+}
+
+ReactDOM.render(<App/>, document.getElementById('root'));
+</script>
+</body>
+</html>
